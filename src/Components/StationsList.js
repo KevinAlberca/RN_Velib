@@ -4,9 +4,14 @@ import {
   StyleSheet,
   Text,
   View,
-  ListView
+  ListView,
+  TouchableOpacity,
+  Dimensions
 } from 'react-native';
 import Emoji from 'react-native-emoji';
+
+var width = Dimensions.get('window').width; //full width
+var height = Dimensions.get('window').height; //full height
 
 export default class StationsList extends Component {
     constructor(props) {
@@ -45,13 +50,26 @@ export default class StationsList extends Component {
         )
     }
 
+    renderRow(rowData, rowID) {
+        return (
+            <TouchableOpacity style={styles.item}>
+                <Text style={styles.bold}>{rowData.name}</Text>
+                <Text>adress : {rowData.address}</Text>
+                <Text>status : {rowData.status}</Text>
+                <Text style={styles.bold}>
+                    <Text style={{color: 'green'}}>{rowData.available_bikes}</Text> / <Text style={{color: 'red'}}>{rowData.bike_stands}</Text>
+                </Text>
+            </TouchableOpacity>
+        )
+    }
+
   render() {
     return (
       <View style={styles.container}>
           <ListView
               dataSource={this.state.dataSource}
               renderSectionHeader={this.renderSectionHeader}
-              renderRow={(rowData) => <Text>{rowData.name}</Text>}
+              renderRow={this.renderRow}
           />
       </View>
     );
@@ -66,17 +84,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
   },
   header: {
+    width: width,
     alignItems: 'center',
     flex: 1,
     paddingTop: 25,
     backgroundColor: '#F0F0F0',
     height: 60,
-    justifyContent: 'space-between'
   },
-  headerTitle : {
+  headerTitle: {
     textAlign: 'center',
     fontSize: 20,
-    color: '#DA552F',
+    color: '#0066ff',
     fontWeight: 'bold'
   },
+  item: {
+    backgroundColor: '#ecf0f1',
+    marginTop: 5,
+    marginBottom: 5,
+    padding: 5,
+  },
+  bold: {
+      fontWeight: 'bold'
+  }
 });
