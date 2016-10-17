@@ -6,6 +6,7 @@ import {
   View,
   ListView
 } from 'react-native';
+import Emoji from 'react-native-emoji';
 
 export default class StationsList extends Component {
     constructor(props) {
@@ -36,20 +37,22 @@ export default class StationsList extends Component {
             });
     }
 
+    renderSectionHeader(sectionData, sectionID) {
+        return (
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}><Emoji name="bike"/> Liste des Velibs</Text>
+            </View>
+        )
+    }
+
   render() {
     return (
       <View style={styles.container}>
           <ListView
               dataSource={this.state.dataSource}
-              renderHeader={() => <Text style={styles.header}>Liste de Velib</Text>}
+              renderSectionHeader={this.renderSectionHeader}
               renderRow={(rowData) => <Text>{rowData.name}</Text>}
           />
-        <Text style={styles.welcome}>
-          Welcome to React !
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js or index.android.js
-        </Text>
       </View>
     );
   }
@@ -62,14 +65,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  header: {
+    alignItems: 'center',
+    flex: 1,
+    paddingTop: 25,
+    backgroundColor: '#F0F0F0',
+    height: 60,
+    justifyContent: 'space-between'
   },
-  instructions: {
+  headerTitle : {
     textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+    fontSize: 20,
+    color: '#DA552F',
+    fontWeight: 'bold'
   },
 });
