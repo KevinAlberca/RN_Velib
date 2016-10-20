@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import Emoji from 'react-native-emoji';
+
+import { Actions } from 'react-native-router-flux';
+import StationView from './StationView';
+
 
 var width = Dimensions.get('window').width; //full width
 var height = Dimensions.get('window').height; //full height
@@ -42,18 +45,12 @@ export default class StationsList extends Component {
             });
     }
 
-    renderSectionHeader(sectionData, sectionID) {
-        return (
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}><Emoji name="bike"/> Liste des Velibs</Text>
-            </View>
-        )
-    }
-
     renderRow(rowData, rowID) {
+        const goToStationView = () => Actions.StationView({id: rowData.number});
         return (
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={goToStationView}>
                 <Text style={styles.bold}>{rowData.name}</Text>
+                <Text style={styles.bold}>{rowData.number}</Text>
                 <Text>adress : {rowData.address}</Text>
                 <Text>status : {rowData.status}</Text>
                 <Text style={styles.bold}>
@@ -68,7 +65,6 @@ export default class StationsList extends Component {
       <View style={styles.container}>
           <ListView
               dataSource={this.state.dataSource}
-              renderSectionHeader={this.renderSectionHeader}
               renderRow={this.renderRow}
           />
       </View>
@@ -78,10 +74,12 @@ export default class StationsList extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    width: width,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    paddingTop:70
   },
   header: {
     width: width,

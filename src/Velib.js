@@ -5,13 +5,19 @@ import {
   Text,
   View
 } from 'react-native';
+import { Router, Scene } from 'react-native-router-flux';
 
-import StationList from './Components/StationsList';
+import StationsList from './Components/StationsList';
+import StationView from './Components/StationView';
+
 
 export default class Velib extends Component {
   render() {
     return (
-      <StationList />
+        <Router>
+            <Scene key="StationsList" component={StationsList} title="Liste des Stations" initial={true} />
+            <Scene key="StationView" component={StationView} />
+        </Router>
     );
   }
 }
