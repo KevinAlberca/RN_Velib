@@ -22,13 +22,15 @@ export default class StationsList extends Component {
         super(props);
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            // apiKey : 'mySecretKeyForAPI',
+            apiKey : 'mySecretKeyForAPI',
             apiBase : 'https://api.jcdecaux.com/vls/v1',
             dataSource : new ListView.DataSource({
                rowHasChanged: (row1, row2) => row1 !== row2,
              }),
             initialPosition: null,
             lastPosition: null,
+            longitude: null,
+            latitude: null,
         };
 
         this.getLocation();
@@ -52,10 +54,13 @@ export default class StationsList extends Component {
     getLocation() {
         navigator.geolocation.getCurrentPosition(
           (position) => {
+            console.log(position);
             var initialPosition = JSON.stringify(position);
-            this.setState({initialPosition});
+            this.setState({'longitude' : position.coords.longitude})
+            this.setState({'latitude' : position.coords.latitude})
+            this.setState({'initialPosition': initialPosition});
           },
-          (error) => alert(JSON.stringify(error)),
+          (error) => alert('ERROR : ' + JSON.stringify(error)),
           {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
         );
       }
@@ -82,14 +87,8 @@ export default class StationsList extends Component {
   render() {
     return (
       <View style={styles.container}>
-      <Text>
-        <Text style={styles.title}>Initial position: </Text>
-        {this.state.initialPosition}
-      </Text>
-      <Text>
-        <Text style={styles.title}>Current position: </Text>
-        {this.state.lastPosition}
-      </Text>
+        <Text style={styles.title}>Longitude : {this.state.longitude}</Text>
+        <Text style={styles.title}>Longitude : {this.state.latitude}</Text>
           <ListView
               dataSource={this.state.dataSource}
               renderRow={this.renderRow}
