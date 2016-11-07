@@ -10,6 +10,7 @@ import {
   AsyncStorage,
 } from 'react-native';
 
+import MapView from 'react-native-maps';
 import { Actions } from 'react-native-router-flux';
 import StationView from './StationView';
 
@@ -27,16 +28,17 @@ export default class StationsList extends Component {
             dataSource : new ListView.DataSource({
                rowHasChanged: (row1, row2) => row1 !== row2,
              }),
-            initialPosition: null,
-            lastPosition: null,
-            longitude: null,
-            latitude: null,
+            region: {
+              latitude: 0,
+              longitude: 0,
+              longitudeDelta: 0,
+              latitudeDelta: 0,
+            }
         };
-
-        this.getLocation();
     }
 
     componentWillMount() {
+      this.getLocation();
         return fetch(this.state.apiBase + '/stations?contract=Paris&apiKey=' + this.state.apiKey)
             .then((response) => response.json())
             .then((responseJSON) => {
@@ -52,21 +54,15 @@ export default class StationsList extends Component {
     }
 
     getLocation() {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            console.log(position);
-            var initialPosition = JSON.stringify(position);
-            this.setState({'longitude' : position.coords.longitude})
-            this.setState({'latitude' : position.coords.latitude})
-            this.setState({'initialPosition': initialPosition});
-          },
-          (error) => alert('ERROR : ' + JSON.stringify(error)),
-          {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
-        );
-      }
-
-    componentWillUnmount() {
-      navigator.geolocation.clearWatch(this.watchID);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log('Position : ', position.coords);
+          var initialPosition = JSON.stringify(position);
+          this.setState({region: position.coords})
+        },
+        (error) => alert('ERROR : ' + JSON.stringify(error)),
+        {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+      );
     }
 
     renderRow(rowData, rowID) {
@@ -84,11 +80,22 @@ export default class StationsList extends Component {
         )
     }
 
+    onRegionChange(region) {
+      this.setState({region});
+    }
+
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Longitude : {this.state.longitude}</Text>
-        <Text style={styles.title}>Longitude : {this.state.latitude}</Text>
+        <Text>Longitude : {this.state.region.longitude}</Text>
+        <Text>Latitude : {this.state.region.latitude}</Text>
+        <MapView
+            region={this.state.region}
+            style={{
+              width: width,
+              height: 100,
+            }}
+          />
           <ListView
               dataSource={this.state.dataSource}
               renderRow={this.renderRow}
@@ -105,7 +112,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    paddingTop:70
+    paddingTop:70,
   },
   header: {
     width: width,
