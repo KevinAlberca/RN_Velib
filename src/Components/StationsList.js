@@ -6,7 +6,8 @@ import {
   View,
   ListView,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  AsyncStorage,
 } from 'react-native';
 
 import { Actions } from 'react-native-router-flux';
@@ -21,20 +22,23 @@ export default class StationsList extends Component {
         super(props);
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            apiKey : 'mySecretKeyForAPI',
+            // apiKey : 'mySecretKeyForAPI',
             apiBase : 'https://api.jcdecaux.com/vls/v1',
             dataSource : new ListView.DataSource({
                rowHasChanged: (row1, row2) => row1 !== row2,
              }),
+            initialPosition: null,
+            lastPosition: null,
         };
 
-        this.getStationsData();
+        this.getLocation();
     }
 
-    getStationsData() {
+    componentWillMount() {
         return fetch(this.state.apiBase + '/stations?contract=Paris&apiKey=' + this.state.apiKey)
             .then((response) => response.json())
             .then((responseJSON) => {
+                  AsyncStorage.setItem('VelibList', JSON.stringify(responseJSON));
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(responseJSON)
                 });
@@ -43,6 +47,21 @@ export default class StationsList extends Component {
             .catch((error) => {
               console.error(error);
             });
+    }
+
+    getLocation() {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            var initialPosition = JSON.stringify(position);
+            this.setState({initialPosition});
+          },
+          (error) => alert(JSON.stringify(error)),
+          {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+        );
+      }
+
+    componentWillUnmount() {
+      navigator.geolocation.clearWatch(this.watchID);
     }
 
     renderRow(rowData, rowID) {
@@ -63,6 +82,14 @@ export default class StationsList extends Component {
   render() {
     return (
       <View style={styles.container}>
+      <Text>
+        <Text style={styles.title}>Initial position: </Text>
+        {this.state.initialPosition}
+      </Text>
+      <Text>
+        <Text style={styles.title}>Current position: </Text>
+        {this.state.lastPosition}
+      </Text>
           <ListView
               dataSource={this.state.dataSource}
               renderRow={this.renderRow}
