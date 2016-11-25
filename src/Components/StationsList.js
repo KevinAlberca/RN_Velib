@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   AsyncStorage,
+  RefreshControl,
 } from 'react-native';
 
 import MapView from 'react-native-maps';
@@ -29,34 +30,65 @@ export default class StationsList extends Component {
                rowHasChanged: (row1, row2) => row1 !== row2,
              }),
             region: {
-              latitude: 0,
-              longitude: 0,
-              longitudeDelta: 0,
-              latitudeDelta: 0,
-            }
+              latitude: 48.86618153714896,
+              longitude: 2.37329241140036,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            },
+            refreshing: false,
         };
     }
 
     componentWillMount() {
-      this.getLocation();
+        this.getLocation();
+        this.fetchStationsList();
+    }
+
+    fetchStationsList() {
         return fetch(this.state.apiBase + '/stations?contract=Paris&apiKey=' + this.state.apiKey)
             .then((response) => response.json())
             .then((responseJSON) => {
-                  AsyncStorage.setItem('VelibList', JSON.stringify(responseJSON));
+                stations = responseJSON;
+                for(var s in stations) {
+                    var distance = this.calcDistanceBetweenUserAndStation(stations[s].position.lat, stations[s].position.lng);
+                    stations[s].distance = distance;
+                    stations.sort(function (a, b) {
+                      if (a.distance > b.distance)
+                        return 1;
+                      if (a.distance < b.distance)
+                        return -1;
+                      // a doit être égale à b
+                      return 0;
+                  });
+                }
                 this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(responseJSON)
+                    dataSource: this.state.dataSource.cloneWithRows(stations),
                 });
-                return responseJSON;
+                AsyncStorage.setItem('VelibList', JSON.stringify(stations));
+                return stations;
             })
             .catch((error) => {
               console.error(error);
             });
     }
 
+    calcDistanceBetweenUserAndStation(station_lat, station_lng) {
+        var user_lat = this.state.region.latitude,
+            user_lng = this.state.region.longitude,
+            R = 6371,
+            dLat = (user_lat-station_lat) * Math.PI / 180,
+            dLon = (user_lng-station_lng) * Math.PI / 180,
+            station_lat = (station_lat) * Math.PI / 180,
+            user_lat = (user_lat) * Math.PI / 180;
+
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(station_lat) * Math.cos(user_lat);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return (R * c) * 1000;
+    }
+
     getLocation() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log('Position : ', position.coords);
           var initialPosition = JSON.stringify(position);
           this.setState({region: position.coords})
         },
@@ -76,12 +108,16 @@ export default class StationsList extends Component {
                 <Text style={styles.bold}>
                     <Text style={{color: 'green'}}>{rowData.available_bikes}</Text> / <Text style={{color: 'red'}}>{rowData.bike_stands}</Text>
                 </Text>
+                <Text>{ rowData.distance } meters</Text>
             </TouchableOpacity>
         )
     }
 
-    onRegionChange(region) {
-      this.setState({region});
+    _onRefresh() {
+        this.setState({refreshing: true});
+        this.fetchStationsList().then(() => {
+            this.setState({refreshing: false});
+        });
     }
 
   render() {
@@ -93,12 +129,18 @@ export default class StationsList extends Component {
             region={this.state.region}
             style={{
               width: width,
-              height: 100,
+              height: 150,
             }}
           />
           <ListView
               dataSource={this.state.dataSource}
               renderRow={this.renderRow}
+              refreshControl={
+                <RefreshControl
+                   refreshing={this.state.refreshing}
+                   onRefresh={this._onRefresh.bind(this)}
+                />
+              }
           />
       </View>
     );
