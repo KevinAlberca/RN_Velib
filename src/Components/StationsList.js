@@ -156,22 +156,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
     paddingTop:70,
   },
-  header: {
-    width: width,
-    alignItems: 'center',
-    flex: 1,
-    paddingTop: 25,
-    backgroundColor: '#F0F0F0',
-    height: 60,
-  },
-  headerTitle: {
-    textAlign: 'center',
-    fontSize: 20,
-    color: '#0066ff',
-    fontWeight: 'bold'
-  },
   item: {
-    backgroundColor: '#ecf0f1',
+    backgroundColor: '#fbfbfb',
     marginTop: 5,
     marginBottom: 5,
     padding: 5,
