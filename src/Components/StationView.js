@@ -26,7 +26,6 @@ export default class StationView extends Component {
 
         this.getStationData();
     }
-
     getStationData() {
         return fetch(this.state.apiBase + '/stations/' + this.props.id + '/?contract=Paris&apiKey='+ this.state.apiKey)
             .then((response) => response.json())
@@ -52,7 +51,6 @@ export default class StationView extends Component {
                 <Text>{this.state.dataSource.available_bike_stands}</Text>
                 <Text>{this.state.dataSource.available_bikes}</Text>
                 <Text>{this.state.dataSource.last_update}</Text>
-                <Text>Reste a afficher la position</Text>
             </View>
         );
     }
@@ -64,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#f6f6f4',
     paddingTop:70
-  },
+  }
 });
