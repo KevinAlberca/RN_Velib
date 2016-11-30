@@ -6,10 +6,13 @@ import {
   View,
   ListView,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  Animation
 } from 'react-native';
 
 import { Actions } from 'react-native-router-flux';
+import * as Animatable from 'react-native-animatable';
+
 
 var width = Dimensions.get('window').width; //full width
 var height = Dimensions.get('window').height; //full height
@@ -21,11 +24,13 @@ export default class StationView extends Component {
         this.state = {
             apiKey : 'mySecretKeyForAPI',
             apiBase : 'https://api.jcdecaux.com/vls/v1',
-            dataSource: []
+            dataSource: [],
+
         };
 
         this.getStationData();
     }
+
     getStationData() {
         return fetch(this.state.apiBase + '/stations/' + this.props.id + '/?contract=Paris&apiKey='+ this.state.apiKey)
             .then((response) => response.json())
@@ -42,15 +47,15 @@ export default class StationView extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>{this.props.id}</Text>
-                <Text>{this.state.dataSource.name}</Text>
-                <Text>{this.state.dataSource.address}</Text>
-                <Text>{this.state.dataSource.contract_name}</Text>
-                <Text>{this.state.dataSource.status}</Text>
-                <Text>{this.state.dataSource.bike_stands}</Text>
-                <Text>{this.state.dataSource.available_bike_stands}</Text>
-                <Text>{this.state.dataSource.available_bikes}</Text>
-                <Text>{this.state.dataSource.last_update}</Text>
+                <Animatable.Text animation="zoomInUp">{this.props.id}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.name}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.address}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.contract_name}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.status}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.bike_stands}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.available_bike_stands}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">{this.state.dataSource.available_bikes}</Animatable.Text>
+                <Animatable.Text animation="zoomInUp">(this.state.dataSource.last_update}</Animatable.Text>
             </View>
         );
     }
@@ -64,5 +69,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f6f6f4',
     paddingTop:70
+  },
+  test: {
+    width: 400,
+    height: 400,
+    backgroundColor: 'blue',
+    opacity: 0
   }
 });
