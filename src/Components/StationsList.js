@@ -35,6 +35,7 @@ export default class StationsList extends Component {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             },
+            markers: [],
             refreshing: false,
         };
     }
@@ -65,11 +66,28 @@ export default class StationsList extends Component {
                     dataSource: this.state.dataSource.cloneWithRows(stations),
                 });
                 AsyncStorage.setItem('VelibList', JSON.stringify(stations));
+                this._setMarkersPosition(stations);
                 return stations;
             })
             .catch((error) => {
               console.error(error);
             });
+    }
+
+    _setMarkersPosition(stations) {
+        var markers = [];
+        for(var i in stations) {
+            console.log(stations[i])
+            markers.push({
+                latitude: stations[i].position.lat,
+                longitude: stations[i].position.lng,
+                title: stations[i].name, // Station name
+                subtitle: stations[i].available_bikes + ' / ' + stations[i].bike_stands // Velib dispo
+            })
+        }
+        this.setState({
+            markers: markers
+        });
     }
 
     calcDistanceBetweenUserAndStation(station_lat, station_lng) {
@@ -125,22 +143,28 @@ export default class StationsList extends Component {
       <View style={styles.container}>
         <Text>Longitude : {this.state.region.longitude}</Text>
         <Text>Latitude : {this.state.region.latitude}</Text>
-        <MapView
-            region={this.state.region}
-            style={{
-              width: width,
-              height: 150,
-            }}
-          />
-          <ListView
-              dataSource={this.state.dataSource}
-              renderRow={this.renderRow}
-              refreshControl={
-                <RefreshControl
-                   refreshing={this.state.refreshing}
-                   onRefresh={this._onRefresh.bind(this)}
+
+        <MapView region={this.state.region} style={{ width: width, height: 150 }}>
+            {this.state.markers.map(marker => (
+                <MapView.Marker
+                    coordinate={{
+                        latitude: marker.latitude,
+                        longitude: marker.longitude,
+                    }}
+                    title={marker.title}
+                    description={marker.description}
                 />
-              }
+            ))}
+        </MapView>
+        <ListView
+            dataSource={this.state.dataSource}
+            renderRow={this.renderRow}
+            refreshControl={
+                <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this._onRefresh.bind(this)}
+                />
+            }
           />
       </View>
     );
